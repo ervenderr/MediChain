@@ -14,9 +14,19 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // Configure PostgreSQL Database
+var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL") ?? 
+                       builder.Configuration.GetConnectionString("DefaultConnection") ?? 
+                       "Host=localhost;Database=medichain;Username=postgres;Password=password";
+
+// Convert Railway DATABASE_URL to proper connection string
+if (connectionString.StartsWith("postgresql://"))
+{
+    var uri = new Uri(connectionString);
+    connectionString = $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};Username={uri.UserInfo.Split(':')[0]};Password={uri.UserInfo.Split(':')[1]};SSL Mode=Require;Trust Server Certificate=true";
+}
+
 builder.Services.AddDbContext<MediChainDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection") ?? 
-                      "Host=localhost;Database=medichain;Username=postgres;Password=password"));
+    options.UseNpgsql(connectionString));
 
 // Configure Identity
 builder.Services.AddIdentity<Patient, IdentityRole>()
