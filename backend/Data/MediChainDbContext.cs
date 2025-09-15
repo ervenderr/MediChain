@@ -28,7 +28,7 @@ public class MediChainDbContext : IdentityDbContext<Patient>
             entity.Property(p => p.DateOfBirth).IsRequired();
             entity.Property(p => p.BloodType).HasMaxLength(10);
             entity.Property(p => p.ProfilePhoto).HasMaxLength(200);
-            entity.Property(p => p.CreatedAt).HasDefaultValueSql("datetime('now')");
+            entity.Property(p => p.CreatedAt).HasDefaultValueSql("NOW()");
         });
 
         // Configure HealthRecord entity
@@ -39,7 +39,7 @@ public class MediChainDbContext : IdentityDbContext<Patient>
             entity.Property(h => h.Category).IsRequired().HasMaxLength(50);
             entity.Property(h => h.Content).IsRequired();
             entity.Property(h => h.IsActive).HasDefaultValue(true);
-            entity.Property(h => h.CreatedAt).HasDefaultValueSql("datetime('now')");
+            entity.Property(h => h.CreatedAt).HasDefaultValueSql("NOW()");
 
             entity.HasOne(h => h.Patient)
                   .WithMany(p => p.HealthRecords)
@@ -54,7 +54,7 @@ public class MediChainDbContext : IdentityDbContext<Patient>
             entity.Property(e => e.EmergencyContactName).HasMaxLength(100);
             entity.Property(e => e.EmergencyContactPhone).HasMaxLength(20);
             entity.Property(e => e.BloodType).HasMaxLength(10);
-            entity.Property(e => e.UpdatedAt).HasDefaultValueSql("datetime('now')");
+            entity.Property(e => e.UpdatedAt).HasDefaultValueSql("NOW()");
 
             entity.HasOne(e => e.Patient)
                   .WithOne(p => p.EmergencyInfo)
@@ -69,7 +69,7 @@ public class MediChainDbContext : IdentityDbContext<Patient>
             entity.Property(q => q.QRToken).IsRequired().HasMaxLength(50);
             entity.Property(q => q.AccessLevel).IsRequired().HasMaxLength(20);
             entity.Property(q => q.ExpiresAt).IsRequired();
-            entity.Property(q => q.CreatedAt).HasDefaultValueSql("datetime('now')");
+            entity.Property(q => q.CreatedAt).HasDefaultValueSql("NOW()");
 
             entity.HasOne(q => q.Patient)
                   .WithMany(p => p.QRAccesses)
@@ -88,7 +88,7 @@ public class MediChainDbContext : IdentityDbContext<Patient>
             entity.Property(f => f.ContentType).IsRequired().HasMaxLength(100);
             entity.Property(f => f.FileSize).IsRequired();
             entity.Property(f => f.FilePath).IsRequired().HasMaxLength(500);
-            entity.Property(f => f.UploadedAt).HasDefaultValueSql("datetime('now')");
+            entity.Property(f => f.UploadedAt).HasDefaultValueSql("NOW()");
 
             entity.HasOne(f => f.HealthRecord)
                   .WithMany()
