@@ -8,7 +8,6 @@ A modern, secure digital health records management system that puts patients in 
   <img src="https://github.com/user-attachments/assets/355f4556-629a-4a4b-b0d6-2e647ea5c4c0" width="160"/>
   <img src="https://github.com/user-attachments/assets/0f9e47a5-71a1-4b96-843f-345aba9ede7f" width="160"/>
   <img src="https://github.com/user-attachments/assets/9885fa3a-8f14-4634-bea5-7e427a40f306" width="160"/>
-  <img src="https://github.com/user-attachments/assets/a338b70d-a093-43a8-81e3-8f1e01f85f0a" width="160"/>
 </p>
 
 
