@@ -90,11 +90,11 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// Database will be created automatically on Railway
-// using (var scope = app.Services.CreateScope())
-// {
-//     var context = scope.ServiceProvider.GetRequiredService<MediChainDbContext>();
-//     context.Database.EnsureCreated();
-// }
+Database will be created automatically on Railway
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<MediChainDbContext>();
+    context.Database.EnsureCreated();
+}
 
 app.Run();
