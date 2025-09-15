@@ -87,6 +87,10 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+// Configure port for Railway
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5001";
+app.Urls.Add($"http://0.0.0.0:{port}");
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
