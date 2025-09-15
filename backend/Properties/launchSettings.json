@@ -14,7 +14,7 @@
       "dotnetRunMessages": true,
       "launchBrowser": true,
       "launchUrl": "swagger",
-      "applicationUrl": "http://0.0.0.0:5001",
+      "applicationUrl": "http://0.0.0.0:5001;https://a4a00e5889a5.ngrok-free.app",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

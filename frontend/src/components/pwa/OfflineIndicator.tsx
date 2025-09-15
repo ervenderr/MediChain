@@ -38,7 +38,7 @@ export default function OfflineIndicator() {
           </div>
           <div className="ml-3">
             <div className="text-sm font-medium text-yellow-800">
-              You're offline
+              You&apos;re offline
             </div>
             <div className="text-xs text-yellow-700 mt-1">
               Some features are limited. Your data will sync when you reconnect.

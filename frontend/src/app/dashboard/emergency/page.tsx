@@ -25,7 +25,6 @@ export default function EmergencyProfile() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
-  const [patientName, setPatientName] = useState<string>('');
 
   // Form state
   const [formData, setFormData] = useState({
@@ -39,13 +38,10 @@ export default function EmergencyProfile() {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    const name = localStorage.getItem('patientName');
     if (!token) {
       router.push('/login');
       return;
     }
-
-    setPatientName(name || 'Patient');
     fetchEmergencyInfo();
   }, [router]);
 
@@ -115,7 +111,7 @@ export default function EmergencyProfile() {
         const errorData = await response.json();
         setError(errorData.message || 'Failed to save emergency information');
       }
-    } catch (err) {
+    } catch {
       setError('Network error. Please try again.');
     } finally {
       setSaving(false);
@@ -145,12 +141,6 @@ export default function EmergencyProfile() {
     });
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('patientId');
-    localStorage.removeItem('patientName');
-    router.push('/');
-  };
 
   if (loading) {
     return (

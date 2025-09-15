@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import AppLayout from "../../components/layout/AppLayout";
 import { formatDateTime } from "../../components/utils";
 import { getApiUrl, API_CONFIG } from "../../lib/constants";
@@ -78,7 +79,7 @@ export default function Dashboard() {
       setStats({
         healthRecords: healthRecords.length || 0,
         activeQRCodes: activeQRs.length || 0,
-        recentViews: activeQRs.filter((qr: any) => qr.isViewed).length || 0,
+        recentViews: activeQRs.filter((qr: { isViewed: boolean }) => qr.isViewed).length || 0,
         emergencyProfile: emergencyInfo ? "Set" : "Not Set",
       });
 
@@ -148,10 +149,11 @@ export default function Dashboard() {
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-xl font-bold text-cyan-600 flex items-center gap-2">
-                <img 
+                <Image 
                   src="/medichain.svg" 
                   alt="MediChain" 
-                  className="w-6 h-6"
+                  width={24}
+                  height={24}
                 />
                 MediChain
               </h1>

@@ -11,11 +11,6 @@ import GlobalSearch from "../../../components/search/GlobalSearch";
 import SearchResults from "../../../components/search/SearchResults";
 import {
   formatDate,
-  formatDateTime,
-  formatFileSize,
-  getFileTypeCategory,
-  cln,
-  truncateText,
   debounce,
 } from "../../../components/utils";
 import { getApiUrl, API_CONFIG } from "../../../lib/constants";
@@ -55,15 +50,15 @@ export default function HealthRecords() {
   const [records, setRecords] = useState<HealthRecord[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [selectedCategory] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState<"newest" | "oldest" | "title">("newest");
+  const [sortBy] = useState<"newest" | "oldest" | "title">("newest");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(
     null
   );
-  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchResults, setSearchResults] = useState<Array<HealthRecord & { id: string; matchedFields: string[]; relevanceScore: number }>>([]);
   const [isSearchActive, setIsSearchActive] = useState(false);
-  const [searchFilters, setSearchFilters] = useState<any>({});
+  const [searchFilters, setSearchFilters] = useState<Record<string, unknown>>({});
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -176,61 +171,6 @@ export default function HealthRecords() {
     }
   };
 
-  const clearAllRecords = async () => {
-    if (
-      !confirm(
-        "Are you sure you want to delete ALL your health records? This cannot be undone."
-      )
-    ) {
-      return;
-    }
-
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(
-        getApiUrl(API_CONFIG.ENDPOINTS.HEALTH_RECORDS_CLEAR),
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (response.ok) {
-        setRecords([]);
-        fetchStats(); // Refresh stats
-        alert("All health records have been cleared");
-      } else {
-        alert("Error clearing records");
-      }
-    } catch (error) {
-      console.error("Error clearing records:", error);
-      alert("Network error");
-    }
-  };
-
-  const enableFileUploads = async () => {
-    try {
-      const response = await fetch(
-        getApiUrl(API_CONFIG.ENDPOINTS.CREATE_FILES_TABLE),
-        {
-          method: "POST",
-        }
-      );
-
-      if (response.ok) {
-        alert(
-          "File upload feature enabled successfully! You can now upload files with your health records."
-        );
-      } else {
-        alert("Error enabling file uploads");
-      }
-    } catch (error) {
-      console.error("Error enabling file uploads:", error);
-      alert("Network error");
-    }
-  };
 
   const getCategoryIcon = (category: string) => {
     const icons: { [key: string]: string } = {
@@ -287,35 +227,33 @@ export default function HealthRecords() {
       }
     });
 
-  // Debounced search
-  const debouncedSearch = debounce((query: string) => {
-    setSearchQuery(query);
-  }, 300);
 
   // Handle search results
-  const handleSearchResults = (results: any[], filters: any) => {
-    setSearchResults(results);
-    setSearchFilters(filters);
+  const handleSearchResults = (results: unknown[], filters: unknown) => {
+    const typedResults = results as Array<HealthRecord & { matchedFields: string[]; relevanceScore: number }>;
+    const mappedResults = typedResults.map(result => ({
+      ...result,
+      id: result.recordID
+    }));
+    setSearchResults(mappedResults);
+    setSearchFilters(filters as Record<string, unknown>);
+    const f = filters as Record<string, unknown>;
     setIsSearchActive(
-      filters.query.trim() !== "" ||
-        filters.category !== "all" ||
-        filters.dateFrom ||
-        filters.dateTo ||
-        filters.hasFiles !== null
+      Boolean(
+        (f.query as string)?.trim() !== "" ||
+        f.category !== "all" ||
+        f.dateFrom ||
+        f.dateTo ||
+        f.hasFiles !== null
+      )
     );
   };
 
   // Handle filters change
-  const handleFiltersChange = (filters: any) => {
-    setSearchFilters(filters);
+  const handleFiltersChange = (filters: unknown) => {
+    setSearchFilters(filters as Record<string, unknown>);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("patientId");
-    localStorage.removeItem("patientName");
-    router.push("/");
-  };
 
   if (loading) {
     return (
@@ -487,7 +425,7 @@ export default function HealthRecords() {
         {isSearchActive ? (
           <SearchResults
             results={searchResults}
-            query={searchFilters.query || ""}
+            query={(searchFilters.query as string) || ""}
             isLoading={loading}
           />
         ) : /* Regular Records View */

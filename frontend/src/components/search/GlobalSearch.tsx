@@ -13,14 +13,25 @@ interface SearchFilters {
   sortBy: 'newest' | 'oldest' | 'relevance' | 'title';
 }
 
-interface SearchResult {
-  id: string;
+interface HealthRecordFile {
+  fileID: string;
+  originalFileName: string;
+  contentType: string;
+  fileSize: number;
+  uploadedAt: string;
+}
+
+interface HealthRecord {
+  recordID: string;
   title: string;
   category: string;
   content: string;
-  dateRecorded: string;
+  dateRecorded?: string;
   createdAt: string;
-  files: any[];
+  files: HealthRecordFile[];
+}
+
+interface SearchResult extends HealthRecord {
   matchedFields: string[];
   relevanceScore: number;
 }
@@ -78,26 +89,27 @@ export default function GlobalSearch({
 
   // Debounced search function
   const debouncedSearch = useRef(
-    debounce(async (searchFilters: SearchFilters) => {
-      if (!searchFilters.query.trim() && searchFilters.category === 'all') {
-        onResults([], searchFilters);
+    debounce(async (searchFilters: unknown) => {
+      const filters = searchFilters as SearchFilters;
+      if (!filters.query.trim() && filters.category === 'all') {
+        onResults([], filters);
         return;
       }
 
       setIsLoading(true);
       try {
-        const results = await performSearch(searchFilters);
-        onResults(results, searchFilters);
+        const results = await performSearch(filters);
+        onResults(results, filters);
         
         // Add to search history if it's a new query
-        if (searchFilters.query.trim() && !searchHistory.includes(searchFilters.query.trim())) {
-          const newHistory = [searchFilters.query.trim(), ...searchHistory.slice(0, 4)];
+        if (filters.query.trim() && !searchHistory.includes(filters.query.trim())) {
+          const newHistory = [filters.query.trim(), ...searchHistory.slice(0, 4)];
           setSearchHistory(newHistory);
           localStorage.setItem('medichain_search_history', JSON.stringify(newHistory));
         }
       } catch (error) {
         console.error('Search error:', error);
-        onResults([], searchFilters);
+        onResults([], filters);
       } finally {
         setIsLoading(false);
       }
@@ -122,17 +134,17 @@ export default function GlobalSearch({
       const records = await response.json();
       
       // Client-side filtering and searching
-      let filteredRecords = records.filter((record: any) => {
+      let filteredRecords = records.filter((record: HealthRecord) => {
         // Category filter
         if (searchFilters.category !== 'all' && record.category !== searchFilters.category) {
           return false;
         }
         
         // Date range filter
-        if (searchFilters.dateFrom && new Date(record.dateRecorded) < new Date(searchFilters.dateFrom)) {
+        if (searchFilters.dateFrom && record.dateRecorded && new Date(record.dateRecorded) < new Date(searchFilters.dateFrom)) {
           return false;
         }
-        if (searchFilters.dateTo && new Date(record.dateRecorded) > new Date(searchFilters.dateTo)) {
+        if (searchFilters.dateTo && record.dateRecorded && new Date(record.dateRecorded) > new Date(searchFilters.dateTo)) {
           return false;
         }
         
@@ -150,7 +162,7 @@ export default function GlobalSearch({
       // Text search and relevance scoring
       if (searchFilters.query.trim()) {
         const query = searchFilters.query.toLowerCase();
-        filteredRecords = filteredRecords.map((record: any) => {
+        filteredRecords = filteredRecords.map((record: HealthRecord): SearchResult => {
           const matchedFields: string[] = [];
           let relevanceScore = 0;
 
@@ -174,7 +186,7 @@ export default function GlobalSearch({
 
           // Search in file names (medium weight)
           if (record.files) {
-            record.files.forEach((file: any) => {
+            record.files.forEach((file: HealthRecordFile) => {
               if (file.originalFileName?.toLowerCase().includes(query)) {
                 matchedFields.push('files');
                 relevanceScore += 3;
@@ -187,10 +199,10 @@ export default function GlobalSearch({
             matchedFields,
             relevanceScore
           };
-        }).filter((record: any) => record.matchedFields.length > 0);
+        }).filter((record: SearchResult) => record.matchedFields.length > 0);
       } else {
         // No text query, just add empty relevance data
-        filteredRecords = filteredRecords.map((record: any) => ({
+        filteredRecords = filteredRecords.map((record: HealthRecord): SearchResult => ({
           ...record,
           matchedFields: [],
           relevanceScore: 0
@@ -198,7 +210,7 @@ export default function GlobalSearch({
       }
 
       // Sort results
-      filteredRecords.sort((a: any, b: any) => {
+      filteredRecords.sort((a: SearchResult, b: SearchResult) => {
         switch (searchFilters.sortBy) {
           case 'newest':
             return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
@@ -365,7 +377,7 @@ export default function GlobalSearch({
               <label className="block text-sm font-medium text-gray-700 mb-2">Sort By</label>
               <select
                 value={filters.sortBy}
-                onChange={(e) => handleFilterChange({ sortBy: e.target.value as any })}
+                onChange={(e) => handleFilterChange({ sortBy: e.target.value as 'newest' | 'oldest' | 'relevance' | 'title' })}
                 className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
               >
                 <option value="relevance">Relevance</option>

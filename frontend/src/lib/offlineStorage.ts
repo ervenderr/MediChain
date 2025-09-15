@@ -1,4 +1,49 @@
 // IndexedDB wrapper for offline data storage
+
+interface HealthRecord {
+  recordID: string;
+  title: string;
+  category: string;
+  content: string;
+  dateRecorded: string;
+  createdAt: string;
+  files?: FileMetadata[];
+}
+
+interface FileMetadata {
+  fileName: string;
+  fileSize: number;
+  contentType: string;
+}
+
+interface PendingRecord {
+  id: number;
+  type: 'CREATE' | 'UPDATE' | 'DELETE';
+  record?: HealthRecord;
+  recordID?: string;
+  token: string;
+  timestamp: number;
+}
+
+interface PatientData {
+  patientId: string;
+  name: string;
+  email: string;
+}
+
+interface EmergencyInfo {
+  emergencyContact: string;
+  medicalConditions: string;
+  allergies: string;
+  medications: string;
+}
+
+interface QRCode {
+  qrCodeID: string;
+  accessLevel: string;
+  expiresAt: string;
+}
+
 export class OfflineStorage {
   private dbName = 'MediChainDB';
   private version = 1;
@@ -56,7 +101,7 @@ export class OfflineStorage {
   }
 
   // Health Records operations
-  async saveHealthRecords(records: any[]): Promise<void> {
+  async saveHealthRecords(records: HealthRecord[]): Promise<void> {
     if (!this.db) await this.init();
     
     const transaction = this.db!.transaction(['healthRecords'], 'readwrite');
@@ -73,7 +118,7 @@ export class OfflineStorage {
     }
   }
 
-  async getHealthRecords(): Promise<any[]> {
+  async getHealthRecords(): Promise<HealthRecord[]> {
     if (!this.db) await this.init();
     
     return new Promise((resolve, reject) => {
@@ -86,7 +131,7 @@ export class OfflineStorage {
     });
   }
 
-  async addHealthRecord(record: any): Promise<void> {
+  async addHealthRecord(record: HealthRecord): Promise<void> {
     if (!this.db) await this.init();
     
     const transaction = this.db!.transaction(['healthRecords'], 'readwrite');
@@ -98,7 +143,7 @@ export class OfflineStorage {
     });
   }
 
-  async updateHealthRecord(record: any): Promise<void> {
+  async updateHealthRecord(record: HealthRecord): Promise<void> {
     if (!this.db) await this.init();
     
     const transaction = this.db!.transaction(['healthRecords'], 'readwrite');
@@ -120,7 +165,7 @@ export class OfflineStorage {
   }
 
   // Pending Records operations (for offline creation)
-  async addPendingRecord(record: any, token: string): Promise<void> {
+  async addPendingRecord(record: HealthRecord, token: string): Promise<void> {
     if (!this.db) await this.init();
     
     const transaction = this.db!.transaction(['pendingRecords'], 'readwrite');
@@ -134,7 +179,7 @@ export class OfflineStorage {
     });
   }
 
-  async addPendingUpdate(recordID: string, record: any, token: string): Promise<void> {
+  async addPendingUpdate(recordID: string, record: Partial<HealthRecord>, token: string): Promise<void> {
     if (!this.db) await this.init();
     
     const transaction = this.db!.transaction(['pendingRecords'], 'readwrite');
@@ -163,7 +208,7 @@ export class OfflineStorage {
     });
   }
 
-  async getPendingRecords(): Promise<any[]> {
+  async getPendingRecords(): Promise<PendingRecord[]> {
     if (!this.db) await this.init();
     
     return new Promise((resolve, reject) => {
@@ -195,7 +240,7 @@ export class OfflineStorage {
   }
 
   // Patient data operations
-  async savePatientData(data: any): Promise<void> {
+  async savePatientData(data: PatientData): Promise<void> {
     if (!this.db) await this.init();
     
     const transaction = this.db!.transaction(['patient'], 'readwrite');
@@ -208,7 +253,7 @@ export class OfflineStorage {
     });
   }
 
-  async getPatientData(): Promise<any | null> {
+  async getPatientData(): Promise<PatientData | null> {
     if (!this.db) await this.init();
     
     return new Promise((resolve, reject) => {
@@ -222,7 +267,7 @@ export class OfflineStorage {
   }
 
   // Emergency info operations
-  async saveEmergencyInfo(data: any): Promise<void> {
+  async saveEmergencyInfo(data: EmergencyInfo): Promise<void> {
     if (!this.db) await this.init();
     
     const transaction = this.db!.transaction(['emergencyInfo'], 'readwrite');
@@ -235,7 +280,7 @@ export class OfflineStorage {
     });
   }
 
-  async getEmergencyInfo(): Promise<any | null> {
+  async getEmergencyInfo(): Promise<EmergencyInfo | null> {
     if (!this.db) await this.init();
     
     return new Promise((resolve, reject) => {
@@ -249,7 +294,7 @@ export class OfflineStorage {
   }
 
   // QR codes operations
-  async saveQRCodes(qrCodes: any[]): Promise<void> {
+  async saveQRCodes(qrCodes: QRCode[]): Promise<void> {
     if (!this.db) await this.init();
     
     const transaction = this.db!.transaction(['qrCodes'], 'readwrite');
@@ -266,7 +311,7 @@ export class OfflineStorage {
     }
   }
 
-  async getQRCodes(): Promise<any[]> {
+  async getQRCodes(): Promise<QRCode[]> {
     if (!this.db) await this.init();
     
     return new Promise((resolve, reject) => {
@@ -280,7 +325,7 @@ export class OfflineStorage {
   }
 
   // File operations (store file metadata, actual files handled by service worker cache)
-  async saveFileMetadata(files: any[]): Promise<void> {
+  async saveFileMetadata(files: FileMetadata[]): Promise<void> {
     if (!this.db) await this.init();
     
     const transaction = this.db!.transaction(['files'], 'readwrite');
@@ -294,7 +339,7 @@ export class OfflineStorage {
     }
   }
 
-  async getFileMetadata(recordID?: string): Promise<any[]> {
+  async getFileMetadata(recordID?: string): Promise<FileMetadata[]> {
     if (!this.db) await this.init();
     
     return new Promise((resolve, reject) => {

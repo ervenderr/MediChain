@@ -1,6 +1,32 @@
 import { offlineStorage } from './offlineStorage';
 import { getApiUrl, API_CONFIG } from './constants';
 
+interface HealthRecord {
+  recordID: string;
+  title: string;
+  category: string;
+  content: string;
+  dateRecorded: string;
+  createdAt: string;
+  files?: FileMetadata[];
+}
+
+interface FileMetadata {
+  fileName: string;
+  fileSize: number;
+  contentType: string;
+  recordID?: string;
+}
+
+interface PendingOperation {
+  id: number;
+  type: 'CREATE' | 'UPDATE' | 'DELETE';
+  recordID?: string;
+  record?: HealthRecord | Partial<HealthRecord>;
+  token: string;
+  timestamp: number;
+}
+
 // Type declarations for Background Sync API
 declare global {
   interface ServiceWorkerRegistration {
@@ -92,14 +118,14 @@ export class SyncService {
   }
 
   // Sync CREATE operations
-  private async syncCreateRecord(pending: any): Promise<void> {
+  private async syncCreateRecord(pending: PendingOperation): Promise<void> {
     const response = await fetch(getApiUrl(API_CONFIG.ENDPOINTS.HEALTH_RECORDS), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${pending.token}`
       },
-      body: JSON.stringify(pending.data)
+      body: JSON.stringify(pending.record)
     });
 
     if (!response.ok) {
@@ -113,14 +139,14 @@ export class SyncService {
   }
 
   // Sync UPDATE operations
-  private async syncUpdateRecord(pending: any): Promise<void> {
+  private async syncUpdateRecord(pending: PendingOperation): Promise<void> {
     const response = await fetch(`${getApiUrl(API_CONFIG.ENDPOINTS.HEALTH_RECORDS)}/${pending.recordID}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${pending.token}`
       },
-      body: JSON.stringify(pending.data)
+      body: JSON.stringify(pending.record)
     });
 
     if (!response.ok) {
@@ -134,7 +160,7 @@ export class SyncService {
   }
 
   // Sync DELETE operations
-  private async syncDeleteRecord(pending: any): Promise<void> {
+  private async syncDeleteRecord(pending: PendingOperation): Promise<void> {
     const response = await fetch(`${getApiUrl(API_CONFIG.ENDPOINTS.HEALTH_RECORDS)}/${pending.recordID}`, {
       method: 'DELETE',
       headers: {
@@ -147,7 +173,9 @@ export class SyncService {
     }
 
     // Remove from local storage
-    await offlineStorage.deleteHealthRecord(pending.recordID);
+    if (pending.recordID) {
+      await offlineStorage.deleteHealthRecord(pending.recordID);
+    }
   }
 
   // Sync data from server
@@ -187,8 +215,8 @@ export class SyncService {
       await offlineStorage.saveHealthRecords(records);
       
       // Cache files metadata
-      const allFiles = records.flatMap((record: any) => 
-        record.files?.map((file: any) => ({ ...file, recordID: record.recordID })) || []
+      const allFiles = records.flatMap((record: HealthRecord) => 
+        record.files?.map((file: FileMetadata) => ({ ...file, recordID: record.recordID })) || []
       );
       if (allFiles.length > 0) {
         await offlineStorage.saveFileMetadata(allFiles);
@@ -234,7 +262,7 @@ export class SyncService {
   }
 
   // Handle offline record creation
-  async createRecordOffline(record: any): Promise<string> {
+  async createRecordOffline(record: HealthRecord): Promise<string> {
     // Generate temporary ID
     const tempId = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const tempRecord = { ...record, recordID: tempId, createdAt: new Date().toISOString() };
@@ -258,9 +286,15 @@ export class SyncService {
   }
 
   // Handle offline record updates
-  async updateRecordOffline(recordID: string, record: any): Promise<void> {
-    // Update local storage immediately
-    await offlineStorage.updateHealthRecord({ ...record, recordID });
+  async updateRecordOffline(recordID: string, record: Partial<HealthRecord>): Promise<void> {
+    // Update local storage immediately - create a partial update
+    // Note: This is a simplified approach. In a full implementation, 
+    // you'd want to get the existing record and merge the updates
+    const allRecords = await offlineStorage.getHealthRecords();
+    const existingRecord = allRecords.find(r => r.recordID === recordID);
+    if (existingRecord) {
+      await offlineStorage.updateHealthRecord({ ...existingRecord, ...record, recordID });
+    }
     
     // Add to pending sync
     const token = localStorage.getItem('token');
@@ -296,7 +330,7 @@ export class SyncService {
   }
 
   // Get offline records
-  async getOfflineRecords(): Promise<any[]> {
+  async getOfflineRecords(): Promise<HealthRecord[]> {
     return await offlineStorage.getHealthRecords();
   }
 

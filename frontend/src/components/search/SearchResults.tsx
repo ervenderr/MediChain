@@ -9,9 +9,9 @@ interface SearchResult {
   title: string;
   category: string;
   content: string;
-  dateRecorded: string;
+  dateRecorded?: string;
   createdAt: string;
-  files: any[];
+  files: { fileID: string; originalFileName: string; contentType: string; fileSize: number; uploadedAt: string }[];
   matchedFields: string[];
   relevanceScore: number;
 }
@@ -111,7 +111,7 @@ export default function SearchResults({
           <p className="text-gray-600 mb-6">
             {query ? (
               <>
-                No health records match your search for <strong>"{query}"</strong>
+                No health records match your search for <strong>&quot;{query}&quot;</strong>
               </>
             ) : (
               "Try adjusting your filters or search terms"
@@ -139,7 +139,7 @@ export default function SearchResults({
       <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
         <div className="text-sm text-gray-600">
           Showing <strong>{startIndex + 1}-{Math.min(startIndex + resultsPerPage, results.length)}</strong> of <strong>{results.length}</strong> results
-          {query && <span> for <strong>"{query}"</strong></span>}
+          {query && <span> for <strong>&quot;{query}&quot;</strong></span>}
         </div>
         
         {results.length > resultsPerPage && (
@@ -185,7 +185,7 @@ export default function SearchResults({
                       <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
-                      Recorded: {formatDate(result.dateRecorded)}
+                      Recorded: {result.dateRecorded ? formatDate(result.dateRecorded) : 'N/A'}
                     </span>
                     
                     <span className="flex items-center gap-1">
