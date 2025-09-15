@@ -2,7 +2,15 @@
 
 A modern, secure digital health records management system that puts patients in control of their medical data. Built with patient privacy and accessibility as core principles.
 
-![MediChain Dashboard](https://via.placeholder.com/800x400/0891b2/ffffff?text=MediChain+Dashboard)
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/a21fa6c5-127a-4ca5-ac21-da250cca8ef8" width="160"/>
+  <img src="https://github.com/user-attachments/assets/00971e78-474d-400d-a6a1-084f28a63079" width="160"/>
+  <img src="https://github.com/user-attachments/assets/355f4556-629a-4a4b-b0d6-2e647ea5c4c0" width="160"/>
+  <img src="https://github.com/user-attachments/assets/0f9e47a5-71a1-4b96-843f-345aba9ede7f" width="160"/>
+  <img src="https://github.com/user-attachments/assets/9885fa3a-8f14-4634-bea5-7e427a40f306" width="160"/>
+  <img src="https://github.com/user-attachments/assets/a338b70d-a093-43a8-81e3-8f1e01f85f0a" width="160"/>
+</p>
+
 
 ## ✨ Features
 
