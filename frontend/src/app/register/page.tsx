@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { getApiUrl, API_CONFIG } from '../../lib/constants';
 
 export default function Register() {
   const router = useRouter();
@@ -23,7 +24,7 @@ export default function Register() {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:5001/api/auth/register', {
+      const response = await fetch(getApiUrl(API_CONFIG.ENDPOINTS.REGISTER), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -58,7 +59,14 @@ export default function Register() {
     <div className="min-h-screen flex items-center justify-center px-4 py-12">
       <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-blue-600 mb-2">🏥 MediChain</h1>
+          <div className="flex items-center justify-center gap-3 mb-2">
+            <img 
+              src="/medichain.svg" 
+              alt="MediChain" 
+              className="w-10 h-10"
+            />
+            <h1 className="text-3xl font-bold text-primary-600">MediChain</h1>
+          </div>
           <h2 className="text-xl font-semibold text-gray-800">Create Your Health Wallet</h2>
           <p className="text-gray-600 mt-2">Join thousands who own their health data</p>
         </div>
@@ -82,7 +90,7 @@ export default function Register() {
                 required
                 value={formData.firstName}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
             </div>
             <div>
@@ -96,7 +104,7 @@ export default function Register() {
                 required
                 value={formData.lastName}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
             </div>
           </div>
@@ -112,7 +120,7 @@ export default function Register() {
               required
               value={formData.email}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
             />
           </div>
 
@@ -128,7 +136,7 @@ export default function Register() {
               minLength={6}
               value={formData.password}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
             />
             <p className="text-xs text-gray-500 mt-1">Minimum 6 characters</p>
           </div>
@@ -144,7 +152,7 @@ export default function Register() {
               required
               value={formData.dateOfBirth}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
             />
           </div>
 
@@ -157,7 +165,7 @@ export default function Register() {
               name="bloodType"
               value={formData.bloodType}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
             >
               <option value="">Select blood type</option>
               <option value="A+">A+</option>
@@ -174,7 +182,7 @@ export default function Register() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-primary-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? 'Creating Account...' : 'Create Health Wallet'}
           </button>
@@ -183,7 +191,7 @@ export default function Register() {
         <div className="mt-6 text-center">
           <p className="text-gray-600">
             Already have an account?{' '}
-            <Link href="/login" className="text-blue-600 hover:underline">
+            <Link href="/login" className="text-primary-600 hover:underline">
               Sign in
             </Link>
           </p>

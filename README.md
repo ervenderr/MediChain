@@ -293,3 +293,6 @@ Built with ❤️ for better healthcare accessibility.
 ---
 
 **MediChain** - Empowering patients with secure, accessible digital health records.
+
+
+export PATH="$PATH:/home/ervenderr/.dotnet"

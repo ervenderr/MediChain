@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
+import { getApiUrl, API_CONFIG } from '../../../../lib/constants';
 
 interface QRPatientInfo {
   name: string;
@@ -113,7 +114,7 @@ export default function QRViewer() {
   const verifyAndLoadData = async () => {
     try {
       // First verify the token
-      const verifyResponse = await fetch(`http://localhost:5001/api/qraccess/verify/${token}`);
+      const verifyResponse = await fetch(`${getApiUrl(API_CONFIG.ENDPOINTS.QR_ACCESS_VERIFY)}/${token}`);
       
       if (!verifyResponse.ok) {
         const errorData = await verifyResponse.json();
@@ -140,7 +141,7 @@ export default function QRViewer() {
       setVerification(verificationData);
 
       // Load health data
-      const dataResponse = await fetch(`http://localhost:5001/api/qraccess/data/${token}/${accessLevel}`);
+      const dataResponse = await fetch(`${getApiUrl(API_CONFIG.ENDPOINTS.QR_ACCESS_DATA)}/${token}/${accessLevel}`);
       
       if (dataResponse.ok) {
         const healthData = await dataResponse.json();
@@ -249,7 +250,14 @@ export default function QRViewer() {
       <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-blue-600 mb-2">🏥 MediChain</h1>
+            <div className="flex items-center justify-center gap-3 mb-2">
+              <img 
+                src="/medichain.svg" 
+                alt="MediChain" 
+                className="w-8 h-8"
+              />
+              <h1 className="text-2xl font-bold text-blue-600">MediChain</h1>
+            </div>
             <div className={`inline-block px-4 py-2 rounded-lg border ${accessInfo.color}`}>
               <div className="font-medium">{accessInfo.title}</div>
               <div className="text-xs mt-1">{accessInfo.description}</div>

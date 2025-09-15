@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { getApiUrl, API_CONFIG } from '../../lib/constants';
 
 export default function Login() {
   const router = useRouter();
@@ -19,7 +20,7 @@ export default function Login() {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:5001/api/auth/login', {
+      const response = await fetch(getApiUrl(API_CONFIG.ENDPOINTS.LOGIN), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -55,7 +56,14 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center px-4 py-12">
       <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-blue-600 mb-2">🏥 MediChain</h1>
+          <div className="flex items-center justify-center gap-3 mb-2">
+            <img 
+              src="/medichain.svg" 
+              alt="MediChain" 
+              className="w-10 h-10"
+            />
+            <h1 className="text-3xl font-bold text-primary-600">MediChain</h1>
+          </div>
           <h2 className="text-xl font-semibold text-gray-800">Welcome Back</h2>
           <p className="text-gray-600 mt-2">Access your digital health wallet</p>
         </div>
@@ -78,7 +86,7 @@ export default function Login() {
               required
               value={formData.email}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
               placeholder="Enter your email"
             />
           </div>
@@ -94,7 +102,7 @@ export default function Login() {
               required
               value={formData.password}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
               placeholder="Enter your password"
             />
           </div>
@@ -102,7 +110,7 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-primary-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? 'Signing In...' : 'Access Your Health Wallet'}
           </button>
@@ -110,8 +118,8 @@ export default function Login() {
 
         <div className="mt-6 text-center">
           <p className="text-gray-600">
-            Don't have an account?{' '}
-            <Link href="/register" className="text-blue-600 hover:underline">
+            Don&apos;t have an account?{' '}
+            <Link href="/register" className="text-primary-600 hover:underline">
               Create your health wallet
             </Link>
           </p>

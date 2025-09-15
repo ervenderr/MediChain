@@ -2,6 +2,7 @@
 
 import { ReactNode } from "react";
 import MobileNavigation from "./MobileNavigation";
+import DesktopNavigation from "./DesktopNavigation";
 
 interface AppLayoutProps {
   readonly children: ReactNode;
@@ -16,6 +17,11 @@ export default function AppLayout({
 }: AppLayoutProps) {
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Desktop Navigation - visible on lg+ screens */}
+      <div className="hidden lg:block">
+        <DesktopNavigation />
+      </div>
+
       <main
         className={`min-h-screen ${showMobileNav ? "pb-16 lg:pb-0" : ""} ${
           className || ""
@@ -24,7 +30,12 @@ export default function AppLayout({
         {children}
       </main>
 
-      {showMobileNav && <MobileNavigation />}
+      {/* Mobile Navigation - visible on screens smaller than lg */}
+      {showMobileNav && (
+        <div className="lg:hidden">
+          <MobileNavigation />
+        </div>
+      )}
     </div>
   );
 }

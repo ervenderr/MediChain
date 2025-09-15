@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
+import { getApiUrl, API_CONFIG } from "@/lib/constants";
 
 interface HealthRecordFile {
   fileID: string;
@@ -93,7 +94,7 @@ export default function EditHealthRecord() {
   const fetchRecord = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:5001/api/healthrecords/${recordId}`, {
+      const response = await fetch(`${getApiUrl(API_CONFIG.ENDPOINTS.HEALTH_RECORDS)}/${recordId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -151,7 +152,7 @@ export default function EditHealthRecord() {
 
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:5001/api/file/${fileId}`, {
+      const response = await fetch(`${getApiUrl('/api/file')}/${fileId}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -179,7 +180,7 @@ export default function EditHealthRecord() {
       formData.append('file', uploadFile.file);
 
       const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:5001/api/file/upload/${recordId}`, {
+      const response = await fetch(`${getApiUrl(API_CONFIG.ENDPOINTS.FILE_UPLOAD)}/${recordId}`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -236,7 +237,7 @@ export default function EditHealthRecord() {
 
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:5001/api/healthrecords/${recordId}`, {
+      const response = await fetch(`${getApiUrl(API_CONFIG.ENDPOINTS.HEALTH_RECORDS)}/${recordId}`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -275,7 +276,7 @@ export default function EditHealthRecord() {
   const downloadFile = async (fileId: string, fileName: string) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5001/api/file/download/${fileId}`, {
+      const response = await fetch(`${getApiUrl(API_CONFIG.ENDPOINTS.FILE_DOWNLOAD)}/${fileId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },

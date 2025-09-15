@@ -1,6 +1,21 @@
 // Application constants and configuration
+// Get the base API URL dynamically
+const getBaseUrl = (): string => {
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL;
+  }
+  
+  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+    return `http://${window.location.hostname}:5001`;
+  }
+  
+  return 'http://localhost:5001';
+};
+
 export const API_CONFIG = {
-  BASE_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001',
+  get BASE_URL() {
+    return getBaseUrl();
+  },
   ENDPOINTS: {
     // Authentication
     REGISTER: '/api/auth/register',
@@ -14,6 +29,9 @@ export const API_CONFIG = {
     // QR Access
     QR_ACCESS_ACTIVE: '/api/qraccess/active',
     QR_ACCESS_GENERATE: '/api/qraccess/generate',
+    QR_ACCESS_REVOKE: '/api/qraccess/revoke',
+    QR_ACCESS_VERIFY: '/api/qraccess/verify',
+    QR_ACCESS_DATA: '/api/qraccess/data',
     
     // Emergency Info
     EMERGENCY_INFO: '/api/emergencyinfo',
@@ -44,7 +62,11 @@ export const APP_CONFIG = {
 
 // API helper functions
 export const getApiUrl = (endpoint: string): string => {
-  return `${API_CONFIG.BASE_URL}${endpoint}`;
+  const url = `${API_CONFIG.BASE_URL}${endpoint}`;
+  if (APP_CONFIG.DEBUG) {
+    console.log(`API URL: ${url}`);
+  }
+  return url;
 };
 
 export const createAuthHeaders = (token?: string | null): HeadersInit => {

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { cln, formatFileSize, getFileTypeCategory } from '../utils';
 import Button from './Button';
+import { getApiUrl, API_CONFIG } from '../../lib/constants';
 
 interface FilePreviewProps {
   fileId: string;
@@ -40,7 +41,7 @@ export default function FilePreview({
       
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`http://localhost:5001/api/file/download/${fileId}`, {
+        const response = await fetch(`${getApiUrl(API_CONFIG.ENDPOINTS.FILE_DOWNLOAD)}/${fileId}`, {
           headers: {
             'Authorization': `Bearer ${token}`,
           },

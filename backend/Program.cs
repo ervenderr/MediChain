@@ -69,10 +69,9 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowNextJS", builder =>
     {
-        builder.WithOrigins("http://localhost:3000", "http://localhost:3001")
+        builder.AllowAnyOrigin()  // Allow any origin for development
                .AllowAnyMethod()
-               .AllowAnyHeader()
-               .AllowCredentials();
+               .AllowAnyHeader();
     });
 });
 

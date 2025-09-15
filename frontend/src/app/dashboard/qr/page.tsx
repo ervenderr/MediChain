@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import QRCode from 'qrcode';
+import AppLayout from '../../../components/layout/AppLayout';
+import { getApiUrl, API_CONFIG } from '../../../lib/constants';
 
 interface QRTokenResponse {
   accessID: string;
@@ -35,6 +37,7 @@ export default function QRGeneration() {
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
   const [expandedQR, setExpandedQR] = useState<string | null>(null);
   const [expandedQRImage, setExpandedQRImage] = useState<string>('');
+  const [patientName, setPatientName] = useState<string>('');
 
   // Form state
   const [accessLevel, setAccessLevel] = useState('emergency');
@@ -77,18 +80,20 @@ export default function QRGeneration() {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
+    const name = localStorage.getItem('patientName');
     if (!token) {
       router.push('/login');
       return;
     }
 
+    setPatientName(name || 'Patient');
     fetchActiveTokens();
   }, [router]);
 
   const fetchActiveTokens = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5001/api/qraccess/active', {
+      const response = await fetch(getApiUrl(API_CONFIG.ENDPOINTS.QR_ACCESS_ACTIVE), {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -114,7 +119,7 @@ export default function QRGeneration() {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5001/api/qraccess/generate', {
+      const response = await fetch(getApiUrl(API_CONFIG.ENDPOINTS.QR_ACCESS_GENERATE), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -161,7 +166,7 @@ export default function QRGeneration() {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5001/api/qraccess/revoke/${accessId}`, {
+      const response = await fetch(`${getApiUrl(API_CONFIG.ENDPOINTS.QR_ACCESS_REVOKE)}/${accessId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -247,28 +252,7 @@ export default function QRGeneration() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Navigation */}
-      <nav className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-8">
-              <Link href="/dashboard" className="text-xl font-bold text-blue-600">🏥 MediChain</Link>
-              <Link href="/dashboard" className="text-gray-600 hover:text-gray-900">Dashboard</Link>
-              <Link href="/dashboard/records" className="text-gray-600 hover:text-gray-900">Health Records</Link>
-              <Link href="/dashboard/emergency" className="text-gray-600 hover:text-gray-900">Emergency Profile</Link>
-              <span className="text-green-600 font-medium">📱 Generate QR</span>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-gray-700">Welcome, {localStorage.getItem('patientName')}!</span>
-              <button onClick={handleLogout} className="text-gray-500 hover:text-gray-700">
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
-
+    <AppLayout>
       {/* Main Content */}
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
@@ -541,6 +525,6 @@ export default function QRGeneration() {
           </div>
         </div>
       </main>
-    </div>
+    </AppLayout>
   );
 }

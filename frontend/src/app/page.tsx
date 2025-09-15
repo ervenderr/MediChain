@@ -8,9 +8,16 @@ export default function Home() {
         <div className="max-w-4xl mx-auto text-center">
           {/* Logo/Brand */}
           <div className="mb-8">
-            <h1 className="text-5xl font-bold text-blue-600 mb-4">
-              🏥 MediChain
-            </h1>
+            <div className="flex items-center justify-center gap-4 mb-4">
+              <img 
+                src="/medichain.svg" 
+                alt="MediChain" 
+                className="w-16 h-16"
+              />
+              <h1 className="text-5xl font-bold text-primary-600">
+                MediChain
+              </h1>
+            </div>
             <p className="text-xl text-gray-600 mb-8">
               Your Digital Health Wallet - You own your data!
             </p>
@@ -39,7 +46,7 @@ export default function Home() {
           <div className="space-y-4 sm:space-y-0 sm:space-x-4 sm:flex sm:justify-center">
             <Link
               href="/register"
-              className="inline-block bg-blue-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+              className="inline-block bg-primary-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-primary-700 transition-colors"
             >
               Create Your Health Wallet
             </Link>

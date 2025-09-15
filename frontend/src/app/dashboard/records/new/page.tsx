@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { getApiUrl, API_CONFIG } from "@/lib/constants";
 
 interface HealthRecordForm {
   title: string;
@@ -31,6 +32,7 @@ export default function NewHealthRecord() {
   const [error, setError] = useState("");
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [createdRecordId, setCreatedRecordId] = useState<string | null>(null);
+  const [patientName, setPatientName] = useState<string>("");
 
   const categories = [
     {
@@ -72,8 +74,11 @@ export default function NewHealthRecord() {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
+    const name = localStorage.getItem("patientName");
     if (!token) {
       router.push("/login");
+    } else {
+      setPatientName(name || "Patient");
     }
   }, [router]);
 
@@ -103,7 +108,7 @@ export default function NewHealthRecord() {
       formData.append('file', uploadFile.file);
 
       const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:5001/api/file/upload/${recordId}`, {
+      const response = await fetch(`${getApiUrl(API_CONFIG.ENDPOINTS.FILE_UPLOAD)}/${recordId}`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -156,7 +161,7 @@ export default function NewHealthRecord() {
 
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:5001/api/healthrecords", {
+      const response = await fetch(getApiUrl(API_CONFIG.ENDPOINTS.HEALTH_RECORDS), {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -250,9 +255,14 @@ export default function NewHealthRecord() {
             <div className="flex items-center space-x-8">
               <Link
                 href="/dashboard"
-                className="text-xl font-bold text-blue-600"
+                className="flex items-center gap-3 text-xl font-bold text-blue-600"
               >
-                🏥 MediChain
+                <img 
+                  src="/medichain.svg" 
+                  alt="MediChain" 
+                  className="w-8 h-8"
+                />
+                MediChain
               </Link>
               <Link
                 href="/dashboard"
@@ -270,7 +280,7 @@ export default function NewHealthRecord() {
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-gray-700">
-                Welcome, {localStorage.getItem("patientName")}!
+                Welcome, {patientName}!
               </span>
               <button
                 onClick={handleLogout}

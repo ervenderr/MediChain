@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import AppLayout from "../../components/layout/AppLayout";
 import { formatDateTime } from "../../components/utils";
+import { getApiUrl, API_CONFIG } from "../../lib/constants";
 
 interface DashboardStats {
   healthRecords: number;
@@ -14,7 +15,7 @@ interface DashboardStats {
 }
 
 interface HealthRecord {
-  id: string;
+  recordID: string;
   recordType: string;
   description: string;
   dateRecorded: string;
@@ -55,13 +56,13 @@ export default function Dashboard() {
 
       const [qrResponse, recordsResponse, emergencyResponse] =
         await Promise.all([
-          fetch("http://localhost:5001/api/qraccess/active", {
+          fetch(getApiUrl(API_CONFIG.ENDPOINTS.QR_ACCESS_ACTIVE), {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          fetch("http://localhost:5001/api/healthrecords", {
+          fetch(getApiUrl(API_CONFIG.ENDPOINTS.HEALTH_RECORDS), {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          fetch("http://localhost:5001/api/emergencyinfo", {
+          fetch(getApiUrl(API_CONFIG.ENDPOINTS.EMERGENCY_INFO), {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
@@ -141,19 +142,17 @@ export default function Dashboard() {
 
   return (
     <AppLayout>
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 lg:hidden">
+      {/* Mobile Header - only visible on small/medium screens */}
+      <header className="bg-white border-b border-gray-200 lg:hidden block md:block">
         <div className="p-4">
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-xl font-bold text-cyan-600 flex items-center gap-2">
-                <svg
+                <img 
+                  src="/medichain.svg" 
+                  alt="MediChain" 
                   className="w-6 h-6"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" />
-                </svg>
+                />
                 MediChain
               </h1>
               <p className="text-sm text-gray-600">
@@ -184,7 +183,7 @@ export default function Dashboard() {
 
       {/* Desktop Header */}
       <header className="bg-white border-b border-gray-200 hidden lg:block">
-        <div className="max-w-7xl mx-auto p-6">
+        <div className="max-w-7xl mx-auto p-4 lg:p-6">
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-2xl font-bold text-cyan-600 flex items-center gap-3">
@@ -201,7 +200,7 @@ export default function Dashboard() {
                 Welcome back, {patientName}! Here&apos;s your health summary.
               </p>
             </div>
-            <button
+            {/* <button
               onClick={handleLogout}
               className="px-4 py-2 text-gray-600 hover:text-gray-900 transition-colors"
             >
@@ -219,12 +218,12 @@ export default function Dashboard() {
                 />
               </svg>
               Sign out
-            </button>
+            </button> */}
           </div>
         </div>
       </header>
 
-      <main className="p-4 lg:p-6">
+      <main className="p-4 lg:p-6 max-w-7xl mx-auto">
         {/* Health Overview Stats */}
         <section className="mb-8">
           <h2 className="text-lg font-semibold mb-4 text-gray-900">
@@ -437,7 +436,7 @@ export default function Dashboard() {
             <div className="space-y-3">
               {recentRecords.map((record) => (
                 <div
-                  key={record.id}
+                  key={record.recordID}
                   className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
                 >
                   <div className="flex items-center gap-4">
