@@ -36,6 +36,9 @@ export const API_CONFIG = {
     // Emergency Info
     EMERGENCY_INFO: '/api/emergencyinfo',
     
+    // Patient Profile
+    PATIENT_PROFILE: '/api/patient/profile',
+    
     // File Management
     FILE_UPLOAD: '/api/file/upload',
     FILE_DOWNLOAD: '/api/file/download',

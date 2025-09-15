@@ -125,18 +125,6 @@ export default function Login() {
           </p>
         </div>
 
-        <div className="mt-8 border-t border-gray-200 pt-6">
-          <div className="text-center">
-            <h3 className="text-sm font-medium text-gray-700 mb-3">Demo Access</h3>
-            <p className="text-xs text-gray-500 mb-3">Quick start with sample data</p>
-            <button
-              onClick={() => setFormData({ email: 'demo@medichain.com', password: 'demo123' })}
-              className="text-sm bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200"
-            >
-              Fill Demo Credentials
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   );

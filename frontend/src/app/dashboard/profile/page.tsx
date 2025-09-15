@@ -48,7 +48,7 @@ export default function ProfilePage() {
   const fetchProfile = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(getApiUrl('/api/patient/profile'), {
+      const response = await fetch(getApiUrl(API_CONFIG.ENDPOINTS.PATIENT_PROFILE), {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -84,7 +84,7 @@ export default function ProfilePage() {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(getApiUrl('/api/patient/profile'), {
+      const response = await fetch(getApiUrl(API_CONFIG.ENDPOINTS.PATIENT_PROFILE), {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
