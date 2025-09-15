@@ -9,7 +9,7 @@ const getBaseUrl = (): string => {
     return `http://${window.location.hostname}:5001`;
   }
   
-  return 'http://localhost:5001';
+  return 'https://medichain-production-a6f7.up.railway.app';
 };
 
 export const API_CONFIG = {
