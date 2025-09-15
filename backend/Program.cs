@@ -13,10 +13,10 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Configure SQLite Database
+// Configure PostgreSQL Database
 builder.Services.AddDbContext<MediChainDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection") ?? 
-                      "Data Source=medichain.db"));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection") ?? 
+                      "Host=localhost;Database=medichain;Username=postgres;Password=password"));
 
 // Configure Identity
 builder.Services.AddIdentity<Patient, IdentityRole>()
@@ -90,11 +90,11 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// Ensure database is created
-using (var scope = app.Services.CreateScope())
-{
-    var context = scope.ServiceProvider.GetRequiredService<MediChainDbContext>();
-    context.Database.EnsureCreated();
-}
+// Database will be created automatically on Railway
+// using (var scope = app.Services.CreateScope())
+// {
+//     var context = scope.ServiceProvider.GetRequiredService<MediChainDbContext>();
+//     context.Database.EnsureCreated();
+// }
 
 app.Run();
