@@ -314,9 +314,17 @@ public class QRAccessController : ControllerBase
 
     private string GetBaseUrl()
     {
-        var request = HttpContext.Request;
-        var baseUrl = _configuration["Frontend:BaseUrl"] ?? $"{request.Scheme}://{request.Host}";
-        return baseUrl.TrimEnd('/');
+        // Use frontend URL for QR codes, not backend URL
+        var frontendUrl = _configuration["Frontend:BaseUrl"];
+        
+        // If not configured, use localhost as fallback
+        if (string.IsNullOrEmpty(frontendUrl))
+        {
+            frontendUrl = "http://localhost:3000";
+            _logger.LogWarning("Frontend:BaseUrl not configured, using localhost fallback");
+        }
+        
+        return frontendUrl.TrimEnd('/');
     }
 
     private string GetClientIP()
