@@ -4,13 +4,17 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { getApiUrl, API_CONFIG } from '../../lib/constants';
+import HCaptchaComponent from '../../components/ui/HCaptcha';
 
 export default function Login() {
   const router = useRouter();
   const [formData, setFormData] = useState({
     email: '',
-    password: ''
+    phoneNumber: '',
+    password: '',
+    hCaptchaToken: ''
   });
+  const [loginMethod, setLoginMethod] = useState<'email' | 'phone'>('email');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -25,7 +29,11 @@ export default function Login() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          email: loginMethod === 'email' ? formData.email : undefined,
+          phoneNumber: loginMethod === 'phone' ? formData.phoneNumber : undefined
+        }),
       });
 
       if (response.ok) {
@@ -52,6 +60,21 @@ export default function Login() {
     });
   };
 
+  const handleCaptchaVerify = (token: string) => {
+    setFormData({
+      ...formData,
+      hCaptchaToken: token
+    });
+  };
+
+  const handleCaptchaError = () => {
+    setFormData({
+      ...formData,
+      hCaptchaToken: ''
+    });
+    setError('Captcha verification failed. Please try again.');
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-12">
       <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
@@ -76,19 +99,67 @@ export default function Login() {
           )}
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-              Email Address
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Login Method
             </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              required
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-              placeholder="Enter your email"
-            />
+            <div className="flex gap-4 mb-3">
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="loginMethod"
+                  value="email"
+                  checked={loginMethod === 'email'}
+                  onChange={(e) => setLoginMethod(e.target.value as 'email' | 'phone')}
+                  className="mr-2"
+                />
+                Email
+              </label>
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="loginMethod"
+                  value="phone"
+                  checked={loginMethod === 'phone'}
+                  onChange={(e) => setLoginMethod(e.target.value as 'email' | 'phone')}
+                  className="mr-2"
+                />
+                Phone Number
+              </label>
+            </div>
+            
+            {loginMethod === 'email' ? (
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  required
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  placeholder="Enter your email"
+                />
+              </div>
+            ) : (
+              <div>
+                <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-1">
+                  Phone Number
+                </label>
+                <input
+                  type="tel"
+                  id="phoneNumber"
+                  name="phoneNumber"
+                  required
+                  placeholder="+1234567890"
+                  value={formData.phoneNumber}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                />
+              </div>
+            )}
           </div>
 
           <div>
@@ -107,9 +178,20 @@ export default function Login() {
             />
           </div>
 
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Security Verification
+            </label>
+            <HCaptchaComponent
+              onVerify={handleCaptchaVerify}
+              onError={handleCaptchaError}
+              onExpire={handleCaptchaError}
+            />
+          </div>
+
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !formData.hCaptchaToken}
             className="w-full bg-primary-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? 'Signing In...' : 'Access Your Health Wallet'}

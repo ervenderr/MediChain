@@ -2,9 +2,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MediChain.Api.Data;
 using MediChain.Api.Models;
+using MediChain.Api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using AspNetCoreRateLimit;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,7 +28,12 @@ if (connectionString.StartsWith("postgresql://"))
 }
 
 builder.Services.AddDbContext<MediChainDbContext>(options =>
-    options.UseNpgsql(connectionString));
+{
+    if (connectionString.Contains("postgresql://") || connectionString.Contains("Host="))
+        options.UseNpgsql(connectionString);
+    else
+        options.UseSqlite(connectionString);
+});
 
 // Configure Identity
 builder.Services.AddIdentity<Patient, IdentityRole>()
@@ -85,6 +92,15 @@ builder.Services.AddCors(options =>
     });
 });
 
+// Configure Rate Limiting
+builder.Services.AddMemoryCache();
+builder.Services.Configure<IpRateLimitOptions>(builder.Configuration.GetSection("IpRateLimiting"));
+builder.Services.AddInMemoryRateLimiting();
+builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+
+// Configure HCaptcha Service
+builder.Services.AddHttpClient<IHCaptchaService, HCaptchaService>();
+
 var app = builder.Build();
 
 // Configure port for Railway
@@ -98,6 +114,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseIpRateLimiting();
 app.UseCors("AllowNextJS");
 app.UseAuthentication();
 app.UseAuthorization();

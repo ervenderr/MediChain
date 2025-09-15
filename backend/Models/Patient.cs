@@ -19,6 +19,10 @@ public class Patient : IdentityUser
     [StringLength(10)]
     public string? BloodType { get; set; }
 
+    [Phone]
+    [StringLength(20)]
+    public override string? PhoneNumber { get; set; }
+
     [StringLength(200)]
     public string? ProfilePhoto { get; set; }
 

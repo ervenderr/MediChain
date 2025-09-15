@@ -13,10 +13,12 @@ A modern, secure digital health records management system that puts patients in 
 
 ## ✨ Features
 
-### 🔐 **Patient-Controlled Access**
-- Secure JWT-based authentication
-- Patient-owned health data
-- Granular access controls
+### 🔐 **Enhanced Security & Authentication**
+- **Multi-method Authentication**: Login with email OR phone number
+- **Bot Protection**: hCaptcha integration prevents automated attacks
+- **Rate Limiting**: Protection against brute force attacks (10 auth attempts/hour)
+- **Secure JWT-based sessions**: Patient-owned health data
+- **Granular access controls**: Full privacy management
 
 ### 📋 **Comprehensive Health Records**
 - Multiple record types: medications, allergies, conditions, lab results, vaccinations
@@ -53,9 +55,13 @@ A modern, secure digital health records management system that puts patients in 
 
 ### **Backend**
 - **ASP.NET Core 8** - Cross-platform web API
-- **Entity Framework Core** - Database ORM
-- **SQLite** - Lightweight, embedded database
-- **JWT Authentication** - Secure token-based auth
+- **Entity Framework Core** - Database ORM with PostgreSQL/SQLite support
+- **Multi-Database Support** - SQLite (local), PostgreSQL (production)
+- **Advanced Security Stack**:
+  - JWT Authentication with secure token-based auth
+  - hCaptcha bot protection integration
+  - AspNetCoreRateLimit for DDoS protection
+  - Input validation and sanitization
 - **File Upload Support** - Image and document handling
 
 ## 🏗️ Project Structure
@@ -122,27 +128,51 @@ NEXT_PUBLIC_API_URL=http://localhost:5001
 NEXT_PUBLIC_APP_NAME=MediChain
 NEXT_PUBLIC_DEFAULT_TIMEZONE=Asia/Manila
 NEXT_PUBLIC_MAX_FILE_SIZE=10485760
+NEXT_PUBLIC_DEBUG=true
+
+# Security Configuration
+NEXT_PUBLIC_HCAPTCHA_SITE_KEY=your-hcaptcha-site-key
 ```
 
 ### Backend Configuration
-Copy `appsettings.example.json` to `appsettings.Development.json` and configure:
+Configure `appsettings.json` for local development:
 ```json
 {
   "ConnectionStrings": {
     "DefaultConnection": "Data Source=medichain.db"
   },
-  "JwtSettings": {
-    "SecretKey": "your-secret-key-minimum-32-characters",
-    "ExpiryMinutes": 60
+  "JWT": {
+    "Key": "your-secret-key-minimum-32-characters",
+    "Issuer": "MediChain.Api",
+    "Audience": "MediChain.Client"
+  },
+  "HCaptcha": {
+    "SecretKey": "your-hcaptcha-secret-key"
+  },
+  "IpRateLimiting": {
+    "EnableEndpointRateLimiting": true,
+    "GeneralRules": [
+      {
+        "Endpoint": "*:/api/auth/*",
+        "Period": "1h",
+        "Limit": 10
+      }
+    ]
   }
 }
 ```
 
+### Production Environment Variables
+Set these on your hosting platform:
+- `DATABASE_URL`: PostgreSQL connection string
+- `JWT__KEY`: Secure JWT signing key (32+ characters)
+- `HCAPTCHA__SECRETKEY`: hCaptcha secret key
+
 ## 📋 API Endpoints
 
 ### Authentication
-- `POST /api/auth/register` - Register new patient
-- `POST /api/auth/login` - Patient login
+- `POST /api/auth/register` - Register new patient (email OR phone + hCaptcha)
+- `POST /api/auth/login` - Patient login (email OR phone + hCaptcha)
 
 ### Health Records
 - `GET /api/healthrecords` - Get patient's health records
@@ -180,10 +210,13 @@ Copy `appsettings.example.json` to `appsettings.Development.json` and configure:
 ## 🔒 Security Features
 
 ### Data Protection
-- JWT token-based authentication
-- Secure file upload validation
-- SQL injection prevention
-- XSS protection headers
+- **Multi-factor Security**: JWT tokens + hCaptcha verification
+- **Flexible Authentication**: Email or phone number login options
+- **Rate Limiting**: 10 auth attempts/hour, 30 general requests/minute
+- **Bot Protection**: hCaptcha integration with bypass for localhost development
+- **Database Security**: Parameterized queries prevent SQL injection
+- **Input Validation**: Server-side validation and sanitization
+- **Environment-aware**: Automatic SQLite/PostgreSQL switching
 
 ### Privacy Controls
 - Patient-controlled data access
@@ -275,11 +308,18 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🎯 Roadmap
 
-### Phase 1 (Current)
+### Phase 1 (Completed)
 - ✅ Basic health record management
-- ✅ QR code sharing
-- ✅ File attachments
+- ✅ QR code sharing system
+- ✅ File attachments support
 - ✅ Modern responsive UI
+- ✅ **Enhanced Security Features**:
+  - ✅ Email OR phone authentication
+  - ✅ hCaptcha bot protection
+  - ✅ Rate limiting protection
+  - ✅ Multi-database support (SQLite/PostgreSQL)
+- ✅ **PWA Features**: Offline support, app installation
+- ✅ **Production Deployment**: Railway (backend) + Vercel (frontend)
 
 ### Phase 2 (Planned)
 - [ ] Healthcare provider portal
@@ -302,4 +342,3 @@ Built with ❤️ for better healthcare accessibility.
 **MediChain** - Empowering patients with secure, accessible digital health records.
 
 
-export PATH="$PATH:/home/ervenderr/.dotnet"

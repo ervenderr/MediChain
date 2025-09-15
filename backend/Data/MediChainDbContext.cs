@@ -27,6 +27,7 @@ public class MediChainDbContext : IdentityDbContext<Patient>
             entity.Property(p => p.LastName).IsRequired().HasMaxLength(50);
             entity.Property(p => p.DateOfBirth).IsRequired();
             entity.Property(p => p.BloodType).HasMaxLength(10);
+            entity.Property(p => p.PhoneNumber).HasMaxLength(20);
             entity.Property(p => p.ProfilePhoto).HasMaxLength(200);
             entity.Property(p => p.CreatedAt).HasDefaultValueSql("NOW()");
         });

@@ -4,17 +4,21 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { getApiUrl, API_CONFIG } from '../../lib/constants';
+import HCaptchaComponent from '../../components/ui/HCaptcha';
 
 export default function Register() {
   const router = useRouter();
   const [formData, setFormData] = useState({
     email: '',
+    phoneNumber: '',
     password: '',
     firstName: '',
     lastName: '',
     dateOfBirth: '',
-    bloodType: ''
+    bloodType: '',
+    hCaptchaToken: ''
   });
+  const [loginMethod, setLoginMethod] = useState<'email' | 'phone'>('email');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -29,7 +33,11 @@ export default function Register() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          email: loginMethod === 'email' ? formData.email : undefined,
+          phoneNumber: loginMethod === 'phone' ? formData.phoneNumber : undefined
+        }),
       });
 
       if (response.ok) {
@@ -53,6 +61,21 @@ export default function Register() {
       ...formData,
       [e.target.name]: e.target.value
     });
+  };
+
+  const handleCaptchaVerify = (token: string) => {
+    setFormData({
+      ...formData,
+      hCaptchaToken: token
+    });
+  };
+
+  const handleCaptchaError = () => {
+    setFormData({
+      ...formData,
+      hCaptchaToken: ''
+    });
+    setError('Captcha verification failed. Please try again.');
   };
 
   return (
@@ -110,18 +133,67 @@ export default function Register() {
           </div>
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-              Email Address
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Registration Method
             </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              required
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-            />
+            <div className="flex gap-4 mb-3">
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="loginMethod"
+                  value="email"
+                  checked={loginMethod === 'email'}
+                  onChange={(e) => setLoginMethod(e.target.value as 'email' | 'phone')}
+                  className="mr-2"
+                />
+                Email
+              </label>
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="loginMethod"
+                  value="phone"
+                  checked={loginMethod === 'phone'}
+                  onChange={(e) => setLoginMethod(e.target.value as 'email' | 'phone')}
+                  className="mr-2"
+                />
+                Phone Number
+              </label>
+            </div>
+            
+            {loginMethod === 'email' ? (
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  required
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                />
+              </div>
+            ) : (
+              <div>
+                <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-1">
+                  Phone Number
+                </label>
+                <input
+                  type="tel"
+                  id="phoneNumber"
+                  name="phoneNumber"
+                  required
+                  placeholder="+1234567890"
+                  value={formData.phoneNumber}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                />
+                <p className="text-xs text-gray-500 mt-1">Include country code (e.g., +1234567890)</p>
+              </div>
+            )}
           </div>
 
           <div>
@@ -179,9 +251,20 @@ export default function Register() {
             </select>
           </div>
 
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Security Verification
+            </label>
+            <HCaptchaComponent
+              onVerify={handleCaptchaVerify}
+              onError={handleCaptchaError}
+              onExpire={handleCaptchaError}
+            />
+          </div>
+
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !formData.hCaptchaToken}
             className="w-full bg-primary-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? 'Creating Account...' : 'Create Health Wallet'}
