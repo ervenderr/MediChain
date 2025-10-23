@@ -40,13 +40,21 @@ public class AuthController : ControllerBase
         if (string.IsNullOrEmpty(model.Email) && string.IsNullOrEmpty(model.PhoneNumber))
             return BadRequest("Either email or phone number is required.");
 
-        // Verify hCaptcha token
-        if (string.IsNullOrEmpty(model.HCaptchaToken))
-            return BadRequest("Captcha verification required.");
+        // Check if request is from mobile app (skip captcha for mobile)
+        var isMobileApp = Request.Headers.ContainsKey("X-Mobile-App") ||
+                         Request.Headers.UserAgent.ToString().Contains("Expo") ||
+                         Request.Headers.UserAgent.ToString().Contains("ReactNative");
 
-        var isCaptchaValid = await _hCaptchaService.VerifyTokenAsync(model.HCaptchaToken);
-        if (!isCaptchaValid)
-            return BadRequest("Invalid captcha verification.");
+        // Verify hCaptcha token only for web requests
+        if (!isMobileApp)
+        {
+            if (string.IsNullOrEmpty(model.HCaptchaToken))
+                return BadRequest("Captcha verification required.");
+
+            var isCaptchaValid = await _hCaptchaService.VerifyTokenAsync(model.HCaptchaToken);
+            if (!isCaptchaValid)
+                return BadRequest("Invalid captcha verification.");
+        }
 
         // Use email as username if provided, otherwise use phone number
         var userName = !string.IsNullOrEmpty(model.Email) ? model.Email : model.PhoneNumber;
@@ -90,13 +98,21 @@ public class AuthController : ControllerBase
         if (string.IsNullOrEmpty(model.Email) && string.IsNullOrEmpty(model.PhoneNumber))
             return BadRequest("Either email or phone number is required.");
 
-        // Verify hCaptcha token
-        if (string.IsNullOrEmpty(model.HCaptchaToken))
-            return BadRequest("Captcha verification required.");
+        // Check if request is from mobile app (skip captcha for mobile)
+        var isMobileApp = Request.Headers.ContainsKey("X-Mobile-App") ||
+                         Request.Headers.UserAgent.ToString().Contains("Expo") ||
+                         Request.Headers.UserAgent.ToString().Contains("ReactNative");
 
-        var isCaptchaValid = await _hCaptchaService.VerifyTokenAsync(model.HCaptchaToken);
-        if (!isCaptchaValid)
-            return BadRequest("Invalid captcha verification.");
+        // Verify hCaptcha token only for web requests
+        if (!isMobileApp)
+        {
+            if (string.IsNullOrEmpty(model.HCaptchaToken))
+                return BadRequest("Captcha verification required.");
+
+            var isCaptchaValid = await _hCaptchaService.VerifyTokenAsync(model.HCaptchaToken);
+            if (!isCaptchaValid)
+                return BadRequest("Invalid captcha verification.");
+        }
 
         Patient? patient = null;
 
