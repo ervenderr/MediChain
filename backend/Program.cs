@@ -84,12 +84,18 @@ builder.Services.AddAuthentication(options =>
 // Configure CORS for Next.js frontend
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowNextJS", builder =>
+    options.AddPolicy("AllowNextJS", corsBuilder =>
     {
-        builder.WithOrigins("https://medichain-health.vercel.app", "http://localhost:3000", "http://localhost:19006", "http://localhost:8081") // Add your frontend and mobile web origins
-               .AllowAnyMethod()
-               .AllowAnyHeader()
-               .AllowCredentials();
+        corsBuilder.WithOrigins(
+                "https://medichain-health.vercel.app",
+                "http://localhost:3000", 
+                "http://localhost:19006", 
+                "http://localhost:8081"
+            )
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials()
+            .SetIsOriginAllowedToAllowWildcardSubdomains();
     });
 });
 
@@ -115,8 +121,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseIpRateLimiting();
+// CORS must be before Authentication and Authorization
 app.UseCors("AllowNextJS");
+app.UseIpRateLimiting();
 app.UseAuthentication();
 app.UseAuthorization();
 
