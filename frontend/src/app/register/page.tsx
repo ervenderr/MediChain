@@ -44,6 +44,7 @@ export default function Register() {
         const data = await response.json();
         localStorage.setItem('token', data.token);
         localStorage.setItem('patientId', data.patientId);
+        localStorage.setItem('patientName', `${data.firstName} ${data.lastName}`);
         router.push('/dashboard');
       } else {
         const errorData = await response.json();
