@@ -86,9 +86,10 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowNextJS", builder =>
     {
-        builder.AllowAnyOrigin()  // Allow any origin for development
+        builder.WithOrigins("https://medichain-health.vercel.app", "http://localhost:3000", "http://localhost:19006", "http://localhost:8081") // Add your frontend and mobile web origins
                .AllowAnyMethod()
-               .AllowAnyHeader();
+               .AllowAnyHeader()
+               .AllowCredentials();
     });
 });
 
